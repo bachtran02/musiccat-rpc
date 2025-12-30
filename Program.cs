@@ -66,7 +66,7 @@ class Program
                         _buffer.Update(status);
                         
                         // Check if track info changed
-                        if (HasTrackChanged(_previousStatus, status))
+                        if (HasTrackStatusChanged(_previousStatus, status))
                         {
                             UpdatePresence();
                             UpdateTrayIcon(status);
@@ -103,10 +103,11 @@ class Program
         Application.Run();
     }
 
-    static bool HasTrackChanged(MusicStatus? previous, MusicStatus? current)
+    static bool HasTrackStatusChanged(MusicStatus? previous, MusicStatus? current)
     {
         if (previous == null || current == null) return true;
         if (previous.IsPlaying != current.IsPlaying) return true;
+        if (previous.IsPaused != current.IsPaused) return true;
         
         var prevTrack = previous.Track;
         var currTrack = current.Track;
