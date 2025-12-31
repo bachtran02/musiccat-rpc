@@ -126,25 +126,29 @@ class Program
             return;
         }
 
-        // Calculate time logic
-        var elapsed = DateTime.Now - lastUpdate;
-        var start = DateTime.UtcNow.AddMilliseconds(-(status.Track.Position + elapsed.TotalMilliseconds));
-        var end = start.AddMilliseconds(status.Track.Length);
-
-        _discordClient.SetPresence(new RichPresence()
+        var curPresence = new RichPresence()
         {
             Type = ActivityType.Listening,
             StatusDisplay = StatusDisplayType.Details,
             Details = status.Track.Title,
             DetailsUrl = status.Track.Uri,
             State = status.Track.Author,
-            Timestamps = status.Track.IsStream ? null : new Timestamps(start, end),
             Assets = new Assets()
             {
                 LargeImageKey = status.Track.ArtworkUrl,
                 SmallImageKey = status.Track.SourceName,
             }
-        });
+        };
+
+        if (!status.Track.IsStream)
+        {
+            // Calculate time logic if not stream
+            var elapsed = DateTime.Now - lastUpdate;
+            var start = DateTime.UtcNow.AddMilliseconds(-(status.Track.Position + elapsed.TotalMilliseconds));
+            var end = start.AddMilliseconds(status.Track.Length);
+            curPresence.Timestamps = new Timestamps(start, end);
+        }
+        _discordClient.SetPresence(curPresence);
     }
 
     static void UpdateTrayIcon(string discordStatus)
